@@ -71,8 +71,21 @@
 
 #define VPT                 0xFAC00000
 
-#define KSTACKPAGE          2                           // 内核栈页数
+#define KSTACKORDER         1
+#define KSTACKPAGE          (1<<KSTACKORDER)                           // 内核栈页数
 #define KSTACKSIZE          (KSTACKPAGE * PGSIZE)       // 内核栈大小
+
+#define USERTOP             0xB0000000
+#define USTACKTOP           USERTOP
+#define USTACKPAGE          256                         // # of pages in user stack
+#define USTACKSIZE          (USTACKPAGE * PGSIZE)       // sizeof user stack
+
+#define USERBASE            0x00200000
+#define UTEXT               0x00800000                  // where user programs generally begin
+#define USTAB               USERBASE                    // the location of the user STABS data structure
+
+#define USER_ACCESS(start, end)                     \
+(USERBASE <= (start) && (start) < (end) && (end) <= USERTOP)
 
 #define KERN_ACCESS(start, end)                     \
 (KERNBASE <= (start) && (start) < (end) && (end) <= KERNTOP)

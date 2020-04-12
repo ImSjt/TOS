@@ -106,7 +106,22 @@ struct page *alloc_pages(int order);
 void free_pages(struct page *base, int order);
 size_t nr_free_pages(void);
 
+void unmap_range(pde_t *pgdir, uintptr_t start, uintptr_t end);
+void exit_range(pde_t *pgdir, uintptr_t start, uintptr_t end);
+int copy_range(pde_t *to, pde_t *from, uintptr_t start, uintptr_t end, bool share);
+
+void page_remove(pde_t *pgdir, uintptr_t la);
+struct page *pgdir_alloc_page(pde_t *pgdir, uintptr_t la, uint32_t perm);
+int page_insert(pde_t *pgdir, struct page *page, uintptr_t la, uint32_t perm);
+void tlb_invalidate(pde_t *pgdir, uintptr_t la);
+
+void load_esp0(uintptr_t esp0);
+
+void print_pgdir(void);
+
 #define alloc_page() alloc_pages(0)
 #define free_page(page) free_pages(page, 0)
+
+extern char bootstack[], bootstacktop[];
 
 #endif /* __MM_PMM_H__ */

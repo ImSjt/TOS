@@ -5,6 +5,7 @@
 #include "mm/kmalloc.h"
 #include "mm/pmm.h"
 #include "sync/sync.h"
+#include "assert.h"
 
 
 
@@ -49,7 +50,7 @@ static bigblock_t *bigblocks;
 
 static void* __slob_get_free_pages(gfp_t gfp, int order)
 {
-  struct page * page = alloc_pages(1 << order);
+  struct page * page = alloc_pages(order);
   if(!page)
     return NULL;
   return page2kva(page);
@@ -59,7 +60,7 @@ static void* __slob_get_free_pages(gfp_t gfp, int order)
 
 static inline void __slob_free_pages(unsigned long kva, int order)
 {
-  free_pages(kva2page((void*)kva), 1 << order);
+  free_pages(kva2page((void*)kva), order);
 }
 
 static void slob_free(void *b, int size);
@@ -140,7 +141,7 @@ static void slob_free(void *block, int size)
 	} else
 		b->next = cur->next;
 
-	if (cur + cur->units == b) {
+	if (cur + cur->units == b) { // 如果两个slob是连续的，就合并
 		cur->units += b->units;
 		cur->next = b->next;
 	} else
@@ -155,13 +156,13 @@ static void slob_free(void *block, int size)
 
 void
 slob_init(void) {
-  kprint("use SLOB allocator\n");
+  printk("use SLOB allocator\n");
 }
 
 inline void 
 kmalloc_init(void) {
     slob_init();
-    kprint("kmalloc_init() succeeded!\n");
+    printk("kmalloc_init() succeeded!\n");
 }
 
 size_t
@@ -230,7 +231,6 @@ void kfree(void *block)
 	if (!block)
 		return;
 
-	// 
 	if (!((unsigned long)block & (PAGE_SIZE-1))) {
 		/* might be on the big block list */
 		spin_lock_irqsave(&block_lock, flags);
@@ -272,5 +272,17 @@ unsigned int ksize(const void *block)
 	return ((slob_t *)block - 1)->units * SLOB_UNIT;
 }
 
+void dump_mm(void) {
+	slob_t *slob;
+	int i = 0;
+	for (slob  = slobfree->next; slob != slobfree; slob = slob->next, i++) {
+		printk("size:%d ", slob->units * SLOB_UNIT);
+	}
 
+	bigblock_t *bb;
+	for (bb = bigblocks; bb; bb = bb->next) {
+		printk("big block,order:%d ", bb->order);		
+	}
 
+	printk("\n");
+}

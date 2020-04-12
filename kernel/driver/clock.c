@@ -39,7 +39,7 @@ clock_init(void) {
     // initialize time counter 'ticks' to zero
     ticks = 0;
 
-    kprint("++ setup timer interrupts\n");
+    printk("++ setup timer interrupts\n");
     pic_enable(IRQ_TIMER);
 }
 

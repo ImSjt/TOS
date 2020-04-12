@@ -4,8 +4,8 @@
 #include "defs.h"
 #include "stdarg.h"
 
-int kprint(const char *fmt, ...);
-int vcprintf(const char *fmt, va_list ap);
+int printk(const char *fmt, ...);
+int vprintk(const char *fmt, va_list ap);
 void cputchar(int c);
 int cputs(const char *str);
 int getchar(void);

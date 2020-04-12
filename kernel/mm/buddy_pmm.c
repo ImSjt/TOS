@@ -168,9 +168,9 @@ static size_t buddy_nr_free_pages(void) {
 static void buddy_dump_area(void) {
     int order;
     for (order = 0; order <= MAX_ORDER; order++) {
-        kprint("(%d:%d) ", 1<<order, free_area.nr_free[order]);
+        printk("(%d:%d) ", 1<<order, free_area.nr_free[order]);
     }
-    kprint("\ntotal:%d\n", free_area.nr_total_free);
+    printk("\ntotal:%d\n", free_area.nr_total_free);
 }
 
 const struct pmm_manager buddy_pmm_manager = {

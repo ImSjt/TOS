@@ -2,6 +2,7 @@
 #include "mm/pmm.h"
 #include "string.h"
 #include "list.h"
+#include "assert.h"
 
 typedef struct {
     list_entry_t free_list;         // the list header

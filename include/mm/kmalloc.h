@@ -12,5 +12,7 @@ void kfree(void *objp);
 
 size_t kallocated(void);
 
+void dump_mm(void);
+
 #endif /* __MM_KMALLOC_H__ */
 

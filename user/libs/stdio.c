@@ -1,8 +1,6 @@
 #include "defs.h"
 #include "stdio.h"
-#include "driver/console.h"
-#include "unistd.h"
-/* HIGH level console I/O */
+#include "syscall.h"
 
 /* *
  * cputch - writes a single character @c to stdout, and it will
@@ -10,46 +8,41 @@
  * */
 static void
 cputch(int c, int *cnt) {
-    cons_putc(c);
+    sys_putc(c);
     (*cnt) ++;
 }
 
 /* *
- * vprintk - format a string and writes it to stdout
+ * vcprintf - format a string and writes it to stdout
  *
  * The return value is the number of characters which would be
  * written to stdout.
  *
  * Call this function if you are already dealing with a va_list.
- * Or you probably want printk() instead.
+ * Or you probably want cprintf() instead.
  * */
 int
-vprintk(const char *fmt, va_list ap) {
+vcprintf(const char *fmt, va_list ap) {
     int cnt = 0;
-    vprintfmt((void*)cputch, -1, &cnt, fmt, ap);
+    vprintfmt((void*)cputch, &cnt, fmt, ap);
     return cnt;
 }
 
 /* *
- * printk - formats a string and writes it to stdout
+ * cprintf - formats a string and writes it to stdout
  *
  * The return value is the number of characters which would be
  * written to stdout.
  * */
 int
-printk(const char *fmt, ...) {
+cprintf(const char *fmt, ...) {
     va_list ap;
-    int cnt;
-    va_start(ap, fmt);
-    cnt = vprintk(fmt, ap);
-    va_end(ap);
-    return cnt;
-}
 
-/* cputchar - writes a single character to stdout */
-void
-cputchar(int c) {
-    cons_putc(c);
+    va_start(ap, fmt);
+    int cnt = vcprintf(fmt, ap);
+    va_end(ap);
+
+    return cnt;
 }
 
 /* *
@@ -65,14 +58,5 @@ cputs(const char *str) {
     }
     cputch('\n', &cnt);
     return cnt;
-}
-
-/* getchar - reads a single non-zero character from stdin */
-int
-getchar(void) {
-    int c;
-    while ((c = cons_getc()) == 0)
-        /* do nothing */;
-    return c;
 }
 
