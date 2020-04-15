@@ -59,4 +59,3 @@ cputs(const char *str) {
     cputch('\n', &cnt);
     return cnt;
 }
-

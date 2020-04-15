@@ -1,10 +1,10 @@
 #include "stdio.h"
 #include "ulib.h"
+#include "unistd.h"
 
 int magic = -0x10384;
 
-int
-main(void) {
+int main(void) {
     int pid, code;
     cprintf("I am the parent. Forking the child...\n");
     if ((pid = fork()) == 0) {
@@ -16,6 +16,13 @@ main(void) {
         yield();
         yield();
         yield();
+
+        int i;
+        for (i = 0; i < 5; i++) {
+            sleep(2);
+            cprintf("I am the child\n");   
+        }
+
         exit(magic);
     }
     else {
@@ -24,12 +31,19 @@ main(void) {
     assert(pid > 0);
     cprintf("I am the parent, waiting now..\n");
 
+    int i;
+    for (i = 0; i < 5; i++) {
+        sleep(1);
+        cprintf("I am the parent\n");   
+    }
+
     assert(waitpid(pid, &code) == 0 && code == magic);
     assert(waitpid(pid, &code) != 0 && wait() != 0);
     cprintf("waitpid %d ok.\n", pid);
 
-    while (1) {
-        
+    while(1) {
+        sleep(1);
+        cprintf("I am the parent\n");        
     }
 
     cprintf("exit pass.\n");

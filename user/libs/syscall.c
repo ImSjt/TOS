@@ -61,3 +61,6 @@ int sys_pgdir(void) {
     return syscall(SYS_pgdir);
 }
 
+int sys_sleep(uint32_t s) {
+    return syscall(SYS_sleep, s);
+}

@@ -1,5 +1,6 @@
 #ifndef __LIBS_UNISTD_H__
 #define __LIBS_UNISTD_H__
+#include "defs.h"
 
 #define T_SYSCALL           0x80
 
@@ -61,5 +62,7 @@
 
 #define EXEC_MAX_ARG_NUM    32
 #define EXEC_MAX_ARG_LEN    4095
+
+void sleep(uint32_t s);
 
 #endif /* __LIBS_UNISTD_H__ */

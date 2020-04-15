@@ -3,6 +3,7 @@
 #include "sync/sync.h"
 #include "schedule/sched.h"
 #include "schedule/default_sched.h"
+#include "schedule/o1_sched.h"
 
 static list_entry_t timer_list;
 
@@ -57,10 +58,18 @@ static struct run_queue __rq;
 void sched_init(void) {
     list_init(&timer_list);
 
+#if defined(CFS_SCHEDULE)
+    sched_class = &cfs_sched_class;
+#elif defined(O1_SCHEDULE)
+    sched_class = &o1_sched_class;
+#elif defined(DEFAULT_SCHEDULE)
     sched_class = &default_sched_class;
+#else
+    panic("no scheduler!\n");
+#endif
 
     rq = &__rq;
-    rq->max_time_slice = 5;
+
     sched_class->init(rq);
 
     printk("sched class: %s\n", sched_class->name);
@@ -136,7 +145,7 @@ void run_timer_list(void) {
         if (le != &timer_list) {
             timer_t *timer = le2timer(le, timer_link);
             assert(timer->expires != 0);
-            timer->expires --;
+            timer->expires--;
             while (timer->expires == 0) {
                 le = list_next(le);
                 struct task_struct *task = timer->task;
@@ -144,7 +153,7 @@ void run_timer_list(void) {
                     assert(task->wait_state & WT_INTERRUPTED);
                 }
                 else {
-                    printk("process %d's wait_state == 0.\n", task->pid);
+                    // printk("process %d's wait_state == 0.\n", task->pid);
                 }
                 wakeup_proc(task);
                 del_timer(timer);
@@ -157,4 +166,12 @@ void run_timer_list(void) {
         sched_class_proc_tick(current);
     }
     local_intr_restore(intr_flag);
+}
+
+void sleep(size_t s) {
+    timer_t timer;
+    timer_init(&timer, current, s * 1000 / 10);
+    add_timer(&timer);
+    current->state = TASK_SLEEPING;
+    schedule();
 }

@@ -2,12 +2,13 @@
 #include "assert.h"
 #include "string.h"
 #include "unistd.h"
-#include "hash.h"
+#include "stdlib.h"
 #include "error.h"
 #include "elf.h"
 #include "process/task.h"
 #include "mm/pmm.h"
 #include "mm/kmalloc.h"
+#include "schedule/sched.h"
 
 list_entry_t task_list;
 
@@ -55,6 +56,8 @@ static struct task_struct *alloc_task(void) {
         task->rq = NULL;
         list_init(&(task->run_link));
         task->time_slice = 0;
+        task->prio = MAX_PRIO / 2;
+        task->vrun_time = 0;
     }
 
     return task;

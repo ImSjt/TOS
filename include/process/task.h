@@ -5,7 +5,9 @@
 #include "trap/trap.h"
 #include "mm/memlayout.h"
 #include "mm/vmm.h"
-#include "schedule/sched.h"
+#include "rb_tree.h"
+
+#define MAX_PRIO 20 // 进程优先级
 
 #define TASK_UNINIT 0       // 未初始化
 #define TASK_SLEEPING 1     // 睡眠
@@ -54,8 +56,11 @@ struct task_struct
     uint32_t wait_state;                        // 等待状态
     struct task_struct *cptr, *yptr, *optr;     // relations between processes
     struct run_queue *rq;                       // 该进程对应的运行队列
-    list_entry_t run_link;                      // 运行队列入口
-    int time_slice;                             // 时间片
+    list_entry_t run_link;                      // 运行队列入口（默认的调度算法和O1调度算法使用）
+    int time_slice;                             // 时间片（默认的调度算法和O1调度算法使用）
+    int prio;                                   // 进程优先级
+    int vrun_time;                              // CFS调度算法使用
+    rb_node rb_link;                            // CFS调度算法使用
 };
 
 #define PF_EXITING                  0x00000001      // getting shutdown
@@ -63,6 +68,7 @@ struct task_struct
 #define WT_INTERRUPTED               0x80000000                    // the wait state could be interrupted
 #define WT_CHILD                    (0x00000001 | WT_INTERRUPTED)  // wait child process
 #define WT_KSEM                      0x00000100                    // wait kernel semaphore
+#define WT_KMUTEX                    0x00001000                    // wait kernel mutex
 #define WT_TIMER                    (0x00000002 | WT_INTERRUPTED)  // wait timer
 #define WT_KBD                      (0x00000004 | WT_INTERRUPTED)  // wait the input of keyboard
 
@@ -78,6 +84,6 @@ int do_yield(void);
 int do_kill(int pid);
 int do_execve(const char *name, size_t len, unsigned char *binary, size_t size);
 
-
+void sleep(size_t s);
 
 #endif /* __PROCESS_TASK_H__ */

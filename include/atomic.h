@@ -77,5 +77,18 @@ test_and_clear_bit(int nr, volatile void *addr) {
     return oldbit != 0;
 }
 
+// 原子地设置新值返回旧值
+static inline uint32_t
+xchg(volatile uint32_t *addr, uint32_t newval)
+{
+  uint32_t result;
+
+  asm volatile("lock; xchgl %0, %1" :
+               "+m" (*addr), "=a" (result) :
+               "1" (newval) :
+               "cc");
+  return result;
+}
+
 #endif /* !__LIBS_ATOMIC_H__ */
 

@@ -38,7 +38,7 @@ USRC_ASM_FILES := $(shell find $(USRC_DIR) -name *.S)
 USRC_C_FILES := $(shell find $(USRC_DIR) -name *.c)
 USRC_FILES := $(USRC_ASM_FILES) $(USRC_C_FILES)
 
-.PHONY: all
+.PHONY: all qemu
 all: $(TOS_IMG)
 
 $(TOS_IMG): $(BOOT_BLOCK) $(KERNEL)
@@ -67,13 +67,20 @@ $(USER_OBJ): $(USRC_FILES)
 	gcc -fno-builtin -Wall -ggdb -m32 -gstabs -nostdinc  -fno-stack-protector -I $(USRC_DIR)/include/ -c $(USRC_DIR)/libs/syscall.c -o $(USRC_DIR)/libs/syscall.o
 	gcc -fno-builtin -Wall -ggdb -m32 -gstabs -nostdinc  -fno-stack-protector -I $(USRC_DIR)/include/ -c $(USRC_DIR)/libs/ulib.c -o $(USRC_DIR)/libs/ulib.o
 	gcc -fno-builtin -Wall -ggdb -m32 -gstabs -nostdinc  -fno-stack-protector -I $(USRC_DIR)/include/ -c $(USRC_DIR)/libs/umain.c -o $(USRC_DIR)/libs/umain.o
-	ld -m elf_i386 -nostdlib -N -T $(TOOLS_DIR)/user.ld -o $(USER_OBJ) $(USRC_DIR)/libs/initcode.o $(USRC_DIR)/libs/panic.o $(USRC_DIR)/libs/printfmt.o $(USRC_DIR)/libs/stdio.o $(USRC_DIR)/libs/string.o $(USRC_DIR)/libs/syscall.o $(USRC_DIR)/libs/ulib.o $(USRC_DIR)/libs/umain.o $(USRC_DIR)/exit.o
+	gcc -fno-builtin -Wall -ggdb -m32 -gstabs -nostdinc  -fno-stack-protector -I $(USRC_DIR)/include/ -c $(USRC_DIR)/libs/unistd.c -o $(USRC_DIR)/libs/unistd.o
+	ld -m elf_i386 -nostdlib -N -T $(TOOLS_DIR)/user.ld -o $(USER_OBJ) $(USRC_DIR)/libs/initcode.o $(USRC_DIR)/libs/panic.o $(USRC_DIR)/libs/printfmt.o $(USRC_DIR)/libs/stdio.o $(USRC_DIR)/libs/string.o $(USRC_DIR)/libs/syscall.o $(USRC_DIR)/libs/ulib.o $(USRC_DIR)/libs/umain.o $(USRC_DIR)/libs/unistd.o $(USRC_DIR)/exit.o
 
 %.o: %.S
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
+
+qemu:
+	qemu-system-i386 -hda ./tos.img -monitor stdio
+
+qemu_debug:
+	qemu-system-i386 -S -s -hda ./tos.img -monitor stdio
 
 .PHONY: clean
 clean:

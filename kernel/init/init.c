@@ -31,7 +31,8 @@ void kmain(void)
     vmm_init(); // 虚拟内存管理初始化
 
     sched_init(); // 调度初始化
-    task_init(); // 初始化进程，idel进程为当前进程
+
+    task_init(); // 初始化进程
 
     clock_init(); // 时钟初始化
 

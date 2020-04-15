@@ -75,4 +75,3 @@ getchar(void) {
         /* do nothing */;
     return c;
 }
-

@@ -1,5 +1,5 @@
-#ifndef __KERN_SYNC_SYNC_H__
-#define __KERN_SYNC_SYNC_H__
+#ifndef __SYNC_SYNC_H__
+#define __SYNC_SYNC_H__
 
 #include "x86.h"
 #include "driver/intr.h"
@@ -24,5 +24,5 @@ __intr_restore(bool flag) {
 #define local_intr_save(x)      do { x = __intr_save(); } while (0)
 #define local_intr_restore(x)   __intr_restore(x);
 
-#endif /* !__KERN_SYNC_SYNC_H__ */
+#endif /* __SYNC_SYNC_H__ */
 

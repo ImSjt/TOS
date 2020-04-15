@@ -2,6 +2,11 @@
 #define __SCHEDULE_SCHED_H__
 #include "list.h"
 #include "process/task.h"
+#include "schedule/default_sched.h"
+#include "schedule/o1_sched.h"
+#include "schedule/cfs_sched.h"
+
+#define CFS_SCHEDULE
 
 typedef struct {
     unsigned int expires;
@@ -37,14 +42,16 @@ struct sched_class {
 };
 
 struct run_queue {
-    list_entry_t run_list;
-    unsigned int task_num;
-    int max_time_slice;
+    struct cfs_run_queue cfs_rq; // cfs调度算法
+    struct o1_run_queue o1_rq; // O1调度算法
+    struct default_run_queue d_rq; // 默认调度算法
 };
 
 void wakeup_proc(struct task_struct *task);
 void sched_init(void);
 void schedule(void);
 void run_timer_list(void);
+
+void sleep(size_t s);
 
 #endif /* __SCHEDULE_SCHED_H__ */
